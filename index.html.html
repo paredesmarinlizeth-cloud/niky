@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Café Aroma — Cafetería</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1A0F07;
+  --bg2:#231408;
+  --bg3:#2D1A0A;
+  --card:#2A1810;
+  --card2:#321D0F;
+  --gold:#E8B84B;
+  --gold2:#F5D080;
+  --gold3:#C49328;
+  --cream:#F5EDD8;
+  --cream2:#ECD9B8;
+  --red:#D4472A;
+  --green:#5A9E6A;
+  --green2:#3D7A4E;
+  --border:rgba(232,184,75,0.18);
+  --border2:rgba(232,184,75,0.35);
+  --r:14px;
+  --r2:22px;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--cream);min-height:100vh;overflow-x:hidden}
+
+/* ── PARTICLES CANVAS ── */
+#particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:.45}
+
+/* ── NAV ── */
+nav{
+  position:sticky;top:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 2rem;height:68px;
+  background:rgba(18,8,2,0.85);
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(12px);
+}
+.nav-logo{
+  display:flex;align-items:center;gap:10px;
+  font-family:'Playfair Display',serif;font-size:1.5rem;
+  color:var(--gold);font-style:italic;letter-spacing:.5px;
+}
+.nav-logo .cup{font-size:1.8rem;animation:steam 2.5s ease-in-out infinite}
+@keyframes steam{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-4px) rotate(3deg)}}
+.nav-links{display:flex;gap:4px}
+.nav-links button{
+  background:none;border:1px solid transparent;
+  color:rgba(245,237,216,.65);padding:7px 18px;
+  border-radius:30px;cursor:pointer;
+  font-family:'Inter',sans-serif;font-size:.85rem;font-weight:500;
+  transition:all .22s;letter-spacing:.3px;
+}
+.nav-links button:hover,.nav-links button.active{
+  border-color:var(--border2);color:var(--gold);
+  background:rgba(232,184,75,.08);
+}
+
+/* ── SECTIONS ── */
+.section{display:none;min-height:calc(100vh - 68px);padding:2rem;position:relative;z-index:1}
+.section.active{display:block}
+
+/* ════════════════ HOME ════════════════ */
+.hero{
+  position:relative;border-radius:var(--r2);overflow:hidden;
+  min-height:340px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;
+  padding:3.5rem 2rem;margin-bottom:2rem;
+  background:var(--card);
+  border:1px solid var(--border);
+}
+.hero-glow{
+  position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 70% 55% at 50% 40%, rgba(232,184,75,.13) 0%, transparent 70%);
+}
+.hero-rings{position:absolute;inset:0;pointer-events:none}
+.hero-rings::before,.hero-rings::after{
+  content:'';position:absolute;border-radius:50%;
+  border:1px solid rgba(232,184,75,.07);
+  top:50%;left:50%;transform:translate(-50%,-50%);
+}
+.hero-rings::before{width:500px;height:500px}
+.hero-rings::after{width:350px;height:350px}
+.hero-tag{
+  display:inline-block;
+  background:rgba(232,184,75,.12);border:1px solid var(--border2);
+  color:var(--gold);font-size:.72rem;letter-spacing:2px;
+  text-transform:uppercase;padding:5px 16px;border-radius:30px;
+  margin-bottom:1rem;font-weight:600;
+}
+.hero h1{
+  font-family:'Playfair Display',serif;font-size:clamp(2.4rem,5vw,3.8rem);
+  color:var(--gold);line-height:1.1;font-style:italic;margin-bottom:.7rem;
+}
+.hero h1 em{color:var(--cream);font-style:normal}
+.hero p{color:rgba(245,237,216,.65);font-size:1.05rem;font-weight:300;max-width:480px;line-height:1.7}
+.hero-btns{display:flex;gap:12px;margin-top:1.8rem;flex-wrap:wrap;justify-content:center}
+.btn-gold{
+  background:var(--gold);color:#1A0F07;
+  border:none;border-radius:30px;padding:12px 28px;
+  font-family:'Inter',sans-serif;font-size:.9rem;font-weight:600;
+  cursor:pointer;letter-spacing:.3px;transition:all .2s;
+}
+.btn-gold:hover{background:var(--gold2);transform:translateY(-2px)}
+.btn-outline{
+  background:none;color:var(--cream);
+  border:1px solid var(--border2);border-radius:30px;
+  padding:12px 28px;font-family:'Inter',sans-serif;
+  font-size:.9rem;font-weight:500;cursor:pointer;
+  letter-spacing:.3px;transition:all .2s;
+}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold);transform:translateY(-2px)}
+
+/* FEATURES ROW */
+.features{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:1rem;margin-bottom:2rem;
+}
+.feat-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r);padding:1.4rem 1.2rem;
+  cursor:pointer;transition:all .25s;position:relative;overflow:hidden;
+}
+.feat-card::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:var(--gold);transform:scaleX(0);transform-origin:left;
+  transition:transform .25s;
+}
+.feat-card:hover{border-color:var(--border2);transform:translateY(-4px)}
+.feat-card:hover::after{transform:scaleX(1)}
+.feat-icon{font-size:2rem;margin-bottom:.6rem}
+.feat-card h3{font-family:'Playfair Display',serif;font-size:1rem;color:var(--gold);margin-bottom:.3rem}
+.feat-card p{font-size:.78rem;color:rgba(245,237,216,.5);line-height:1.5}
+
+/* SPECIALS STRIP */
+.specials-title{
+  font-family:'Playfair Display',serif;font-size:1.3rem;
+  color:var(--gold);font-style:italic;margin-bottom:1rem;
+  display:flex;align-items:center;gap:10px;
+}
+.specials-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.specials-strip{
+  display:flex;gap:1rem;overflow-x:auto;padding-bottom:.5rem;
+}
+.specials-strip::-webkit-scrollbar{height:3px}
+.specials-strip::-webkit-scrollbar-track{background:transparent}
+.specials-strip::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.special-chip{
+  flex-shrink:0;background:var(--card2);border:1px solid var(--border);
+  border-radius:50px;padding:10px 20px;
+  display:flex;align-items:center;gap:8px;
+  font-size:.85rem;color:var(--cream2);cursor:pointer;
+  transition:all .2s;
+}
+.special-chip:hover{border-color:var(--gold);color:var(--gold)}
+.special-chip .sp-price{color:var(--gold);font-weight:600;font-size:.8rem}
+
+/* ════════════════ MESA ════════════════ */
+.section-title{
+  font-family:'Playfair Display',serif;font-size:1.8rem;
+  color:var(--gold);font-style:italic;margin-bottom:.4rem;
+}
+.section-sub{font-size:.85rem;color:rgba(245,237,216,.45);margin-bottom:1.5rem;letter-spacing:.3px}
+.mesa-info-bar{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r);padding:1rem 1.5rem;
+  margin-bottom:1.5rem;font-size:.9rem;
+  display:flex;align-items:center;gap:10px;
+}
+.mesa-info-bar .mi-icon{font-size:1.4rem}
+.mesa-info-bar strong{color:var(--gold)}
+.mesa-map{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r2);padding:2rem;
+  max-width:700px;margin:0 auto;
+}
+.mesa-map-title{
+  font-family:'Playfair Display',serif;font-style:italic;
+  color:rgba(232,184,75,.45);font-size:.85rem;text-align:center;
+  margin-bottom:1.5rem;letter-spacing:1px;text-transform:uppercase;font-size:.72rem;
+}
+.mesa-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:12px;
+}
+.mesa-btn{
+  aspect-ratio:1;border-radius:var(--r);
+  border:1.5px solid var(--border2);background:var(--card2);
+  cursor:pointer;transition:all .22s;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  position:relative;overflow:hidden;
+}
+.mesa-btn::before{
+  content:'';position:absolute;inset:0;
+  background:rgba(232,184,75,.05);opacity:0;transition:opacity .2s;
+}
+.mesa-btn:hover::before{opacity:1}
+.mesa-btn:hover{border-color:var(--gold);transform:scale(1.04)}
+.mesa-icon{font-size:1.6rem}
+.mesa-num{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--cream);font-weight:700}
+.mesa-status{font-size:.65rem;color:rgba(245,237,216,.4);letter-spacing:.5px;text-transform:uppercase;font-weight:500}
+.mesa-btn.selected{
+  background:rgba(232,184,75,.12);border-color:var(--gold);
+  box-shadow:0 0 0 3px rgba(232,184,75,.15);
+}
+.mesa-btn.selected .mesa-num{color:var(--gold)}
+.mesa-btn.selected .mesa-status{color:var(--gold3)}
+.mesa-btn.ocupada{border-color:rgba(212,71,42,.4);background:rgba(212,71,42,.06);cursor:not-allowed}
+.mesa-btn.ocupada .mesa-num{color:rgba(212,71,42,.7)}
+.mesa-btn.ocupada .mesa-status{color:rgba(212,71,42,.5)}
+
+/* ════════════════ MENÚ ════════════════ */
+.menu-hero{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r2);padding:2rem;text-align:center;margin-bottom:1.5rem;
+  position:relative;overflow:hidden;
+}
+.menu-hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 40% at 50% 50%,rgba(232,184,75,.06),transparent 70%);
+}
+.menu-hero h2{
+  font-family:'Playfair Display',serif;font-size:2rem;
+  color:var(--gold);font-style:italic;position:relative;
+}
+.menu-hero .mesa-tag{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(232,184,75,.1);border:1px solid var(--border2);
+  color:var(--gold2);border-radius:20px;padding:4px 14px;
+  font-size:.8rem;margin-top:.6rem;position:relative;
+}
+.menu-cats{
+  display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:1.5rem;
+}
+.cat-btn{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:30px;padding:8px 20px;cursor:pointer;
+  font-family:'Inter',sans-serif;font-size:.83rem;color:rgba(245,237,216,.55);
+  transition:all .18s;font-weight:500;
+}
+.cat-btn:hover{border-color:var(--border2);color:var(--cream)}
+.cat-btn.active{background:var(--gold);border-color:var(--gold);color:#1A0F07;font-weight:600}
+.menu-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+  gap:1.25rem;max-width:1100px;margin:0 auto;
+}
+.menu-item{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r2);overflow:hidden;
+  display:flex;flex-direction:column;transition:all .25s;
+  cursor:default;position:relative;
+}
+.menu-item:hover{border-color:var(--border2);transform:translateY(-5px);box-shadow:0 16px 40px rgba(0,0,0,.4)}
+.item-img-area{
+  height:110px;display:flex;align-items:center;justify-content:center;
+  font-size:3.8rem;position:relative;overflow:hidden;
+  background:var(--card2);
+}
+.item-img-area::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:30px;
+  background:linear-gradient(transparent,var(--card));
+}
+.item-badge{
+  position:absolute;top:10px;right:10px;
+  background:var(--gold);color:#1A0F07;
+  font-size:.62rem;font-weight:700;letter-spacing:.5px;
+  padding:3px 8px;border-radius:20px;text-transform:uppercase;
+}
+.item-body{padding:1rem 1.1rem;flex:1}
+.item-body h3{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--cream);margin-bottom:.25rem}
+.item-body p{font-size:.76rem;color:rgba(245,237,216,.42);line-height:1.5}
+.item-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.8rem 1.1rem;border-top:1px solid var(--border);
+}
+.item-price{
+  font-size:1.15rem;font-weight:700;color:var(--gold);font-family:'Inter',sans-serif;
+}
+.item-price span{font-size:.7rem;color:rgba(232,184,75,.5);font-weight:400}
+.add-btn{
+  background:var(--gold);color:#1A0F07;border:none;
+  border-radius:8px;padding:7px 16px;cursor:pointer;
+  font-size:.82rem;font-weight:600;font-family:'Inter',sans-serif;
+  transition:all .18s;display:flex;align-items:center;gap:5px;
+}
+.add-btn:hover{background:var(--gold2);transform:scale(1.05)}
+.add-btn.has-items{background:var(--green);color:#fff}
+.add-btn.has-items:hover{background:var(--green2)}
+
+/* ── CARRITO FAB ── */
+.carrito-fab{
+  position:fixed;bottom:2rem;right:2rem;z-index:300;
+  background:var(--gold);color:#1A0F07;border:none;
+  border-radius:50px;padding:13px 24px;cursor:pointer;
+  font-family:'Inter',sans-serif;font-size:.9rem;font-weight:700;
+  display:flex;align-items:center;gap:10px;
+  box-shadow:0 8px 24px rgba(232,184,75,.35);
+  transition:all .2s;
+}
+.carrito-fab:hover{background:var(--gold2);transform:translateY(-3px);box-shadow:0 12px 32px rgba(232,184,75,.45)}
+.badge{
+  background:#1A0F07;color:var(--gold);
+  border-radius:50%;width:24px;height:24px;
+  font-size:.72rem;font-weight:800;
+  display:flex;align-items:center;justify-content:center;
+}
+
+/* ── MODAL ── */
+.modal-bg{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.7);z-index:400;
+  align-items:center;justify-content:center;
+  backdrop-filter:blur(4px);
+}
+.modal-bg.open{display:flex}
+.modal{
+  background:var(--card);border:1px solid var(--border2);
+  border-radius:var(--r2);width:min(95vw,520px);
+  max-height:88vh;overflow-y:auto;padding:2rem;position:relative;
+}
+.modal-close{
+  position:absolute;top:1.2rem;right:1.2rem;
+  background:var(--card2);border:1px solid var(--border);
+  color:rgba(245,237,216,.55);width:32px;height:32px;
+  border-radius:50%;cursor:pointer;font-size:1rem;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+.modal-close:hover{border-color:var(--border2);color:var(--cream)}
+.modal h3{font-family:'Playfair Display',serif;color:var(--gold);font-size:1.4rem;font-style:italic;margin-bottom:.3rem}
+.modal-mesa-line{font-size:.82rem;color:rgba(245,237,216,.4);margin-bottom:1.2rem}
+.modal-mesa-line strong{color:var(--gold2)}
+.cart-item{
+  display:flex;align-items:center;gap:12px;
+  padding:.8rem 0;border-bottom:1px solid var(--border);
+  font-size:.88rem;
+}
+.cart-icon{font-size:1.5rem;width:34px;text-align:center}
+.cart-name{flex:1;color:var(--cream2)}
+.cart-qty{display:flex;align-items:center;gap:7px}
+.qty-btn{
+  width:28px;height:28px;border-radius:50%;
+  border:1px solid var(--border2);background:none;
+  color:var(--cream);cursor:pointer;font-size:1rem;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+.qty-btn:hover{background:var(--card2);border-color:var(--gold);color:var(--gold)}
+.cart-sub{min-width:65px;text-align:right;color:var(--gold);font-weight:600}
+.cart-total-row{
+  display:flex;justify-content:space-between;
+  margin-top:1.2rem;padding-top:1rem;
+  border-top:1px solid var(--border2);
+  font-size:1.15rem;font-weight:700;
+}
+.cart-total-row span:first-child{font-family:'Playfair Display',serif;color:var(--cream);font-style:italic}
+.cart-total-row span:last-child{color:var(--gold)}
+.confirmar-btn{
+  width:100%;margin-top:1rem;
+  background:var(--green);color:#fff;border:none;
+  border-radius:10px;padding:13px;
+  font-family:'Playfair Display',serif;font-size:1.05rem;font-style:italic;
+  cursor:pointer;transition:all .2s;letter-spacing:.3px;
+}
+.confirmar-btn:hover{background:var(--green2)}
+.confirmar-btn:disabled{background:rgba(255,255,255,.1);color:rgba(255,255,255,.25);cursor:not-allowed}
+
+/* ════════════════ COCINA ════════════════ */
+.cocina-layout{
+  display:grid;grid-template-columns:1fr 330px;gap:1.5rem;max-width:1100px;margin:0 auto;
+}
+@media(max-width:800px){.cocina-layout{grid-template-columns:1fr}}
+.cocina-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden}
+.panel-hdr{
+  background:var(--card2);border-bottom:1px solid var(--border);
+  padding:1rem 1.4rem;display:flex;align-items:center;gap:10px;
+  font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--cream);font-style:italic;
+}
+.live-dot{
+  width:9px;height:9px;border-radius:50%;
+  background:#5A9E6A;box-shadow:0 0 0 3px rgba(90,158,106,.2);
+  animation:pulse 1.8s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 3px rgba(90,158,106,.2)}50%{box-shadow:0 0 0 6px rgba(90,158,106,.1)}}
+.panel-body{padding:1.25rem}
+.pedido-card{
+  background:var(--card2);border:1px solid var(--border);
+  border-radius:var(--r);padding:1.1rem;margin-bottom:1rem;
+  animation:slideIn .3s ease;
+}
+@keyframes slideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.pedido-card.listo{border-color:rgba(90,158,106,.35);background:rgba(90,158,106,.05)}
+.pedido-head{
+  display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.8rem;
+}
+.pedido-head strong{font-family:'Playfair Display',serif;color:var(--gold);font-size:.95rem}
+.pedido-hora{font-size:.72rem;color:rgba(245,237,216,.35)}
+.pedido-items-list{list-style:none;padding:0;margin-bottom:.8rem}
+.pedido-items-list li{
+  display:flex;justify-content:space-between;
+  font-size:.83rem;color:rgba(245,237,216,.7);
+  padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04);
+}
+.pedido-items-list li span:last-child{color:var(--green);font-weight:500}
+.pedido-foot{
+  display:flex;justify-content:space-between;align-items:center;
+  padding-top:.7rem;border-top:1px solid var(--border);
+}
+.pedido-total-val{color:var(--gold);font-weight:700;font-size:.92rem}
+.pedido-actions{display:flex;align-items:center;gap:6px}
+.status-pill{
+  padding:3px 12px;border-radius:20px;font-size:.7rem;font-weight:600;
+}
+.pend-pill{background:rgba(232,184,75,.12);color:var(--gold);border:1px solid rgba(232,184,75,.25)}
+.listo-pill{background:rgba(90,158,106,.15);color:#7BC88A;border:1px solid rgba(90,158,106,.3)}
+.marcar-btn{
+  background:var(--green);color:#fff;border:none;
+  border-radius:6px;padding:5px 12px;cursor:pointer;
+  font-size:.75rem;font-weight:600;transition:background .15s;
+}
+.marcar-btn:hover{background:var(--green2)}
+.del-btn{
+  background:rgba(212,71,42,.1);border:1px solid rgba(212,71,42,.2);
+  color:rgba(212,71,42,.7);width:26px;height:26px;border-radius:6px;
+  cursor:pointer;font-size:.8rem;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+.del-btn:hover{background:rgba(212,71,42,.2);color:#D4472A}
+.empty-cocina{
+  text-align:center;padding:2.5rem 1rem;
+  color:rgba(245,237,216,.25);font-size:.9rem;
+}
+.empty-cocina .big{font-size:3rem;margin-bottom:.5rem;opacity:.4}
+
+/* STATS */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem}
+.stat-card{
+  background:var(--card2);border:1px solid var(--border);
+  border-radius:var(--r);padding:.9rem .8rem;text-align:center;
+}
+.stat-val{font-size:1.6rem;font-weight:700;color:var(--gold);font-family:'Playfair Display',serif;display:block}
+.stat-lbl{font-size:.65rem;color:rgba(245,237,216,.35);text-transform:uppercase;letter-spacing:.8px;display:block;margin-top:2px}
+.top-prod h4{
+  font-size:.68rem;letter-spacing:.8px;text-transform:uppercase;
+  color:rgba(245,237,216,.3);margin-bottom:.6rem;
+}
+.top-row{
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:.82rem;padding:5px 0;border-bottom:1px solid var(--border);
+  color:rgba(245,237,216,.65);
+}
+.top-row span:last-child{color:var(--gold);font-weight:600;font-size:.75rem}
+.export-btn{
+  width:100%;margin-top:1rem;
+  background:none;color:var(--gold);
+  border:1px solid var(--gold3);border-radius:10px;padding:12px;
+  font-family:'Playfair Display',serif;font-size:1rem;font-style:italic;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:all .2s;
+}
+.export-btn:hover{background:rgba(232,184,75,.08);border-color:var(--gold)}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:7rem;right:2rem;z-index:600;
+  background:var(--card2);border:1px solid var(--border2);
+  color:var(--cream);padding:11px 20px;
+  border-radius:10px;font-size:.85rem;
+  opacity:0;transform:translateY(8px);
+  transition:all .28s;pointer-events:none;
+  box-shadow:0 8px 24px rgba(0,0,0,.4);
+}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+</style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+
+<nav>
+  <div class="nav-logo"><span class="cup">☕</span> Café Aroma</div>
+  <div class="nav-links">
+    <button class="active" onclick="showSection('inicio')">Inicio</button>
+    <button onclick="showSection('mesa')">Mesas</button>
+    <button onclick="showSection('menu')">Menú</button>
+    <button onclick="showSection('cocina')">🍳 Cocina</button>
+  </div>
+</nav>
+
+<!-- ═══ INICIO ═══ -->
+<div id="sec-inicio" class="section active">
+  <div class="hero">
+    <div class="hero-glow"></div><div class="hero-rings"></div>
+    <div class="hero-tag">✦ Abierto ahora · Tarija, Bolivia</div>
+    <h1>Donde cada<br><em>sorbo</em> cuenta una historia</h1>
+    <p>Jugos naturales, crepas artesanales, café de especialidad y más — todo con el sabor de siempre.</p>
+    <div class="hero-btns">
+      <button class="btn-gold" onclick="showSection('menu')">Ver menú completo</button>
+      <button class="btn-outline" onclick="showSection('mesa')">Elegir mi mesa</button>
+    </div>
+  </div>
+
+  <div class="features">
+    <div class="feat-card" onclick="showSection('mesa')">
+      <div class="feat-icon">🪑</div>
+      <h3>Elegir mesa</h3>
+      <p>Seleccioná tu lugar y hacé tu pedido sin esperas</p>
+    </div>
+    <div class="feat-card" onclick="showSection('menu')">
+      <div class="feat-icon">📋</div>
+      <h3>Menú completo</h3>
+      <p>Jugos, bebidas calientes, empanadas, crepas y más</p>
+    </div>
+    <div class="feat-card" onclick="showSection('cocina')">
+      <div class="feat-icon">👨‍🍳</div>
+      <h3>Panel cocina</h3>
+      <p>Pedidos en tiempo real con resumen del día</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📊</div>
+      <h3>Exportar Excel</h3>
+      <p>Reportes detallados con un solo clic</p>
+    </div>
+  </div>
+
+  <div class="specials-title">Destacados del día</div>
+  <div class="specials-strip" id="specials-strip"></div>
+</div>
+
+<!-- ═══ MESA ═══ -->
+<div id="sec-mesa" class="section">
+  <div class="section-title">Elegí tu mesa</div>
+  <div class="section-sub">Mesas disponibles · Planta principal</div>
+  <div class="mesa-info-bar" id="mesa-info">
+    <span class="mi-icon">🪑</span>
+    <span>Sin mesa seleccionada — <strong>tocá una mesa disponible para continuar</strong></span>
+  </div>
+  <div class="mesa-map">
+    <div class="mesa-map-title">— Mapa del salón —</div>
+    <div class="mesa-grid" id="mesa-grid"></div>
+  </div>
+</div>
+
+<!-- ═══ MENÚ ═══ -->
+<div id="sec-menu" class="section">
+  <div class="menu-hero">
+    <h2>Nuestro Menú</h2>
+    <div class="mesa-tag">🪑 <span id="mesa-actual-label">Sin mesa seleccionada</span></div>
+  </div>
+  <div class="menu-cats">
+    <button class="cat-btn active" onclick="filterMenu('todos',this)">✦ Todos</button>
+    <button class="cat-btn" onclick="filterMenu('jugos',this)">🍹 Jugos</button>
+    <button class="cat-btn" onclick="filterMenu('te-cafe',this)">☕ Té & Café</button>
+    <button class="cat-btn" onclick="filterMenu('comidas',this)">🥐 Comidas</button>
+  </div>
+  <div class="menu-grid" id="menu-grid"></div>
+</div>
+
+<!-- ═══ COCINA ═══ -->
+<div id="sec-cocina" class="section">
+  <div class="section-title">Panel de Cocina</div>
+  <div class="section-sub">Pedidos activos en tiempo real</div>
+  <div class="cocina-layout">
+    <div class="cocina-panel">
+      <div class="panel-hdr"><div class="live-dot"></div> Pedidos entrantes</div>
+      <div class="panel-body" id="cocina-pedidos">
+        <div class="empty-cocina"><div class="big">🍽️</div><p>Aún no hay pedidos</p></div>
+      </div>
+    </div>
+    <div class="cocina-panel">
+      <div class="panel-hdr">📊 Resumen del día</div>
+      <div class="panel-body">
+        <div class="stat-grid">
+          <div class="stat-card"><span class="stat-val" id="stat-pedidos">0</span><span class="stat-lbl">Pedidos</span></div>
+          <div class="stat-card"><span class="stat-val" id="stat-items">0</span><span class="stat-lbl">Ítems</span></div>
+          <div class="stat-card"><span class="stat-val" id="stat-mesas">0</span><span class="stat-lbl">Mesas</span></div>
+          <div class="stat-card"><span class="stat-val" id="stat-total">Bs 0</span><span class="stat-lbl">Total</span></div>
+        </div>
+        <div class="top-prod" id="top-prod">
+          <h4>Más pedidos</h4>
+          <p style="font-size:.78rem;color:rgba(245,237,216,.25)">Sin datos aún</p>
+        </div>
+        <button class="export-btn" onclick="exportarExcel()">
+          <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Exportar a Excel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CARRITO FAB -->
+<button class="carrito-fab" id="carrito-fab" onclick="abrirCarrito()">
+  🛒 Pedido <div class="badge" id="carrito-badge">0</div>
+</button>
+
+<!-- MODAL CARRITO -->
+<div class="modal-bg" id="modal-carrito">
+  <div class="modal">
+    <button class="modal-close" onclick="cerrarCarrito()">✕</button>
+    <h3>Tu pedido</h3>
+    <p class="modal-mesa-line">Mesa: <strong id="modal-mesa-label">—</strong></p>
+    <div id="cart-items-list"></div>
+    <div class="cart-total-row">
+      <span>Total</span>
+      <span id="cart-total-display">Bs 0.00</span>
+    </div>
+    <button class="confirmar-btn" id="confirmar-btn" onclick="confirmarPedido()">
+      Enviar a cocina ✓
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── PARTICLES ──
+(function(){
+  const c=document.getElementById('particles'),ctx=c.getContext('2d');
+  function resize(){c.width=innerWidth;c.height=innerHeight}
+  resize();window.addEventListener('resize',resize);
+  const pts=Array.from({length:55},()=>({
+    x:Math.random()*innerWidth,y:Math.random()*innerHeight,
+    vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,
+    r:Math.random()*1.5+.4,o:Math.random()*.35+.05
+  }));
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    pts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;
+      if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(232,184,75,${p.o})`;ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── DATA ──
+const MENU=[
+  {id:1,nombre:'Jugo de plátano',cat:'jugos',precio:12,icon:'🍌',desc:'Cremoso y natural, recién licuado',badge:'Popular'},
+  {id:2,nombre:'Jugo de frutilla',cat:'jugos',precio:12,icon:'🍓',desc:'Fresco, dulce y lleno de vitaminas',badge:'Favorito'},
+  {id:3,nombre:'Café espresso',cat:'te-cafe',precio:8,icon:'☕',desc:'Intenso, puro y reconfortante',badge:null},
+  {id:4,nombre:'Café con leche',cat:'te-cafe',precio:10,icon:'🫗',desc:'Suave equilibrio de café y leche caliente',badge:null},
+  {id:5,nombre:'Té',cat:'te-cafe',precio:7,icon:'🍵',desc:'Variedad de infusiones artesanales',badge:null},
+  {id:6,nombre:'Empanada',cat:'comidas',precio:9,icon:'🥟',desc:'Crujiente por fuera, jugosa por dentro',badge:'Horno'},
+  {id:7,nombre:'Crepa',cat:'comidas',precio:18,icon:'🫓',desc:'Dulce o salada, hecha al momento',badge:'Chef'},
+  {id:8,nombre:'Rollo',cat:'comidas',precio:15,icon:'🥐',desc:'Esponjoso, con canela y azúcar',badge:null},
+];
+const MESAS=Array.from({length:12},(_,i)=>({id:i+1,ocupada:[3,7].includes(i+1)}));
+
+let mesaSeleccionada=null,carrito={},pedidos=[],pidCounter=1,catActual='todos';
+
+// ── SPECIALS ──
+function renderSpecials(){
+  const s=document.getElementById('specials-strip');
+  s.innerHTML=MENU.slice(0,6).map(m=>
+    `<div class="special-chip" onclick="showSection('menu')">
+      ${m.icon} ${m.nombre} <span class="sp-price">Bs ${m.precio}</span>
+    </div>`).join('');
+}
+
+// ── NAV ──
+function showSection(sec){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sec-'+sec).classList.add('active');
+  document.querySelectorAll('.nav-links button').forEach(b=>b.classList.remove('active'));
+  const idx=['inicio','mesa','menu','cocina'].indexOf(sec);
+  document.querySelectorAll('.nav-links button')[idx]?.classList.add('active');
+  if(sec==='menu')renderMenu();
+  if(sec==='cocina')renderCocina();
+}
+
+// ── MESAS ──
+function renderMesas(){
+  const g=document.getElementById('mesa-grid');g.innerHTML='';
+  MESAS.forEach(m=>{
+    const b=document.createElement('button');
+    b.className='mesa-btn'+(m.ocupada?' ocupada':'')+(mesaSeleccionada===m.id?' selected':'');
+    b.innerHTML=`<span class="mesa-icon">${m.ocupada?'🔴':mesaSeleccionada===m.id?'✅':'🟢'}</span>
+      <span class="mesa-num">Mesa ${m.id}</span>
+      <span class="mesa-status">${m.ocupada?'Ocupada':'Libre'}</span>`;
+    if(!m.ocupada)b.onclick=()=>seleccionarMesa(m.id);
+    g.appendChild(b);
+  });
+}
+function seleccionarMesa(id){
+  mesaSeleccionada=id;
+  document.getElementById('mesa-info').innerHTML=
+    `<span class="mi-icon">✅</span><span><strong style="color:var(--gold)">Mesa ${id} seleccionada</strong> — Ya podés ver el menú y hacer tu pedido.</span>`;
+  document.getElementById('mesa-actual-label').textContent='Mesa '+id;
+  document.getElementById('modal-mesa-label').textContent='Mesa '+id;
+  renderMesas();showToast('Mesa '+id+' seleccionada ✓');
+}
+
+// ── MENÚ ──
+function filterMenu(cat,btn){
+  catActual=cat;
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');renderMenu();
+}
+function renderMenu(){
+  const g=document.getElementById('menu-grid');
+  const items=MENU.filter(m=>catActual==='todos'||m.cat===catActual);
+  g.innerHTML='';
+  items.forEach(item=>{
+    const qty=carrito[item.id]?.qty||0;
+    const d=document.createElement('div');d.className='menu-item';
+    d.innerHTML=`
+      <div class="item-img-area">
+        ${item.icon}
+        ${item.badge?`<span class="item-badge">${item.badge}</span>`:''}
+      </div>
+      <div class="item-body">
+        <h3>${item.nombre}</h3>
+        <p>${item.desc}</p>
+      </div>
+      <div class="item-footer">
+        <span class="item-price">Bs ${item.precio}<span> /unidad</span></span>
+        <button class="add-btn ${qty>0?'has-items':''}" onclick="agregarItem(${item.id})">
+          ${qty>0?`✓ (${qty}) más`:'+ Agregar'}
+        </button>
+      </div>`;
+    g.appendChild(d);
+  });
+}
+
+function agregarItem(id){
+  if(!mesaSeleccionada){showToast('⚠️ Primero elegí una mesa');return;}
+  const item=MENU.find(m=>m.id===id);
+  if(!carrito[id])carrito[id]={item,qty:0};
+  carrito[id].qty++;
+  updateBadge();renderMenu();
+  showToast(item.icon+' '+item.nombre+' agregado');
+}
+function updateBadge(){
+  const t=Object.values(carrito).reduce((s,c)=>s+c.qty,0);
+  document.getElementById('carrito-badge').textContent=t;
+}
+
+// ── CARRITO ──
+function abrirCarrito(){document.getElementById('modal-carrito').classList.add('open');renderCartModal();}
+function cerrarCarrito(){document.getElementById('modal-carrito').classList.remove('open');}
+function renderCartModal(){
+  const list=document.getElementById('cart-items-list');
+  const items=Object.values(carrito).filter(c=>c.qty>0);
+  if(!items.length){
+    list.innerHTML='<p style="color:rgba(245,237,216,.25);text-align:center;padding:1rem;font-size:.85rem">El carrito está vacío</p>';
+    document.getElementById('cart-total-display').textContent='Bs 0.00';
+    document.getElementById('confirmar-btn').disabled=true;return;
+  }
+  document.getElementById('confirmar-btn').disabled=!mesaSeleccionada;
+  list.innerHTML='';let total=0;
+  items.forEach(c=>{
+    total+=c.item.precio*c.qty;
+    const row=document.createElement('div');row.className='cart-item';
+    row.innerHTML=`<span class="cart-icon">${c.item.icon}</span>
+      <span class="cart-name">${c.item.nombre}</span>
+      <div class="cart-qty">
+        <button class="qty-btn" onclick="cambiarQty(${c.item.id},-1)">−</button>
+        <span style="font-size:.88rem;min-width:14px;text-align:center;color:var(--cream)">${c.qty}</span>
+        <button class="qty-btn" onclick="cambiarQty(${c.item.id},1)">+</button>
+      </div>
+      <span class="cart-sub">Bs ${(c.item.precio*c.qty).toFixed(2)}</span>`;
+    list.appendChild(row);
+  });
+  document.getElementById('cart-total-display').textContent='Bs '+total.toFixed(2);
+}
+function cambiarQty(id,delta){
+  if(!carrito[id])return;
+  carrito[id].qty=Math.max(0,carrito[id].qty+delta);
+  if(carrito[id].qty===0)delete carrito[id];
+  updateBadge();renderCartModal();renderMenu();
+}
+function confirmarPedido(){
+  const items=Object.values(carrito).filter(c=>c.qty>0);
+  if(!items.length||!mesaSeleccionada)return;
+  const total=items.reduce((s,c)=>s+c.item.precio*c.qty,0);
+  const hora=new Date().toLocaleTimeString('es-BO',{hour:'2-digit',minute:'2-digit'});
+  pedidos.unshift({id:pidCounter++,mesa:mesaSeleccionada,items:items.map(c=>({...c})),total,hora,listo:false,fecha:new Date()});
+  carrito={};updateBadge();cerrarCarrito();renderMenu();
+  showToast('✅ Pedido enviado a cocina');renderCocina();
+}
+
+// ── COCINA ──
+function renderCocina(){
+  const cont=document.getElementById('cocina-pedidos');
+  if(!pedidos.length){
+    cont.innerHTML='<div class="empty-cocina"><div class="big">🍽️</div><p>Aún no hay pedidos</p></div>';
+  } else {
+    cont.innerHTML='';
+    pedidos.forEach(p=>{
+      const card=document.createElement('div');
+      card.className='pedido-card'+(p.listo?' listo':'');
+      const iHtml=p.items.map(c=>`<li><span>${c.item.icon} ${c.item.nombre} ×${c.qty}</span><span>Bs ${(c.item.precio*c.qty).toFixed(2)}</span></li>`).join('');
+      card.innerHTML=`
+        <div class="pedido-head">
+          <strong>🪑 Mesa ${p.mesa} — #${p.id}</strong>
+          <span class="pedido-hora">${p.hora}</span>
+        </div>
+        <ul class="pedido-items-list">${iHtml}</ul>
+        <div class="pedido-foot">
+          <span class="pedido-total-val">Bs ${p.total.toFixed(2)}</span>
+          <div class="pedido-actions">
+            <span class="status-pill ${p.listo?'listo-pill':'pend-pill'}">${p.listo?'✓ Listo':'⏳ Pendiente'}</span>
+            ${!p.listo?`<button class="marcar-btn" onclick="marcarListo(${p.id})">Listo</button>`:''}
+            <button class="del-btn" onclick="eliminarPedido(${p.id})">✕</button>
+          </div>
+        </div>`;
+      cont.appendChild(card);
+    });
+  }
+  actualizarStats();
+}
+function marcarListo(id){const p=pedidos.find(x=>x.id===id);if(p){p.listo=true;renderCocina();showToast('Pedido #'+id+' listo ✓');}}
+function eliminarPedido(id){pedidos=pedidos.filter(x=>x.id!==id);renderCocina();}
+function actualizarStats(){
+  const total=pedidos.reduce((s,p)=>s+p.total,0);
+  const items=pedidos.reduce((s,p)=>s+p.items.reduce((a,c)=>a+c.qty,0),0);
+  const mesas=new Set(pedidos.map(p=>p.mesa)).size;
+  document.getElementById('stat-pedidos').textContent=pedidos.length;
+  document.getElementById('stat-items').textContent=items;
+  document.getElementById('stat-mesas').textContent=mesas;
+  document.getElementById('stat-total').textContent='Bs '+total.toFixed(0);
+  const cnt={};
+  pedidos.forEach(p=>p.items.forEach(c=>{if(!cnt[c.item.nombre])cnt[c.item.nombre]={n:0,icon:c.item.icon};cnt[c.item.nombre].n+=c.qty;}));
+  const top=Object.entries(cnt).sort((a,b)=>b[1].n-a[1].n).slice(0,5);
+  const div=document.getElementById('top-prod');
+  div.innerHTML='<h4>Más pedidos</h4>'+(top.length
+    ?top.map(([n,d])=>`<div class="top-row"><span>${d.icon} ${n}</span><span>${d.n} uds</span></div>`).join('')
+    :'<p style="font-size:.78rem;color:rgba(245,237,216,.25)">Sin datos aún</p>');
+}
+
+// ── EXPORTAR ──
+function exportarExcel(){
+  if(!pedidos.length){showToast('⚠️ No hay pedidos para exportar');return;}
+  const wb=XLSX.utils.book_new();
+  const rows=[['#Pedido','Mesa','Hora','Producto','Cantidad','Precio Unit.','Subtotal','Estado']];
+  pedidos.forEach(p=>p.items.forEach(c=>rows.push([p.id,'Mesa '+p.mesa,p.hora,c.item.nombre,c.qty,c.item.precio,c.item.precio*c.qty,p.listo?'Listo':'Pendiente'])));
+  const ws1=XLSX.utils.aoa_to_sheet(rows);ws1['!cols']=[{wch:8},{wch:10},{wch:8},{wch:20},{wch:10},{wch:12},{wch:12},{wch:12}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Pedidos');
+  const total=pedidos.reduce((s,p)=>s+p.total,0);
+  const items=pedidos.reduce((s,p)=>s+p.items.reduce((a,c)=>a+c.qty,0),0);
+  const mesas=new Set(pedidos.map(p=>p.mesa)).size;
+  const listos=pedidos.filter(p=>p.listo).length;
+  const ws2=XLSX.utils.aoa_to_sheet([['Resumen — Café Aroma'],[],['Total pedidos',pedidos.length],['Listos',listos],['Pendientes',pedidos.length-listos],['Mesas',mesas],['Ítems',items],['Total Bs',total.toFixed(2)],[],['Exportado',new Date().toLocaleString('es-BO')]]);
+  ws2['!cols']=[{wch:22},{wch:14}];XLSX.utils.book_append_sheet(wb,ws2,'Resumen');
+  const cnt={};pedidos.forEach(p=>p.items.forEach(c=>{if(!cnt[c.item.nombre])cnt[c.item.nombre]={qty:0,ing:0};cnt[c.item.nombre].qty+=c.qty;cnt[c.item.nombre].ing+=c.item.precio*c.qty;}));
+  const pr=[['Producto','Cantidad','Ingreso Bs']];Object.entries(cnt).sort((a,b)=>b[1].qty-a[1].qty).forEach(([n,d])=>pr.push([n,d.qty,d.ing.toFixed(2)]));
+  const ws3=XLSX.utils.aoa_to_sheet(pr);ws3['!cols']=[{wch:20},{wch:12},{wch:14}];XLSX.utils.book_append_sheet(wb,ws3,'Productos');
+  XLSX.writeFile(wb,'cafe_aroma_pedidos.xlsx');showToast('📊 Exportado correctamente');
+}
+
+// ── TOAST ──
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2700);
+}
+
+renderMesas();renderMenu();renderSpecials();
+</script>
+</body>
+</html>
